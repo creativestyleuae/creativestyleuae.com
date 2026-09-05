@@ -914,97 +914,101 @@
     <div
     id="jw-element-772854904"
     data-jw-element-id="772854904"
-        class="jw-tree-node jw-element jw-contact-form jw-node-is-first-child jw-node-is-last-child"
+        class="jw-tree-node jw-element jw-node-is-first-child jw-node-is-last-child"
 >
-   <form id="creativeStyleContactForm" action="https://formsubmit.co/ajax/info@creativestyleuae.com" method="POST" accept-charset="UTF-8">
-    <input type="hidden" name="_subject" value="New Contact Form Message - Creative Style UAE">
-    <input type="hidden" name="_template" value="table">
-    <input type="hidden" name="_captcha" value="false">
-    <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
-    <input type="hidden" name="_subject" value="New Contact Form Message - Creative Style Garment Printing & Embroidery">
-    <input type="hidden" name="_replyto" value="">
-    <input type="hidden" name="_template" value="table">
-    <input type="hidden" name="_captcha" value="true">
+   <div id="creativeStyleContactForm" class="creative-style-contact-form">
+    <input type="hidden" id="cs_subject" value="New Contact Form Message - Creative Style Garment Printing & Embroidery">
+    <input type="text" id="cs_honey" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+
     <div class="jw-element-form-group">
-        <label for="jwForm8yE8oN_dynamic-form-5942243-20200639" class="jw-element-form-label">Name *</label>
+        <label for="cs_name" class="jw-element-form-label">Name *</label>
         <div class="jw-element-form-content">
-            <input
-                type="text"
-                name="name"
-                required
-                id="jwForm8yE8oN_dynamic-form-5942243-20200639"
-                class="form-control jw-element-form-input-text"
-                value=""
-            >
+            <input type="text" id="cs_name" name="name" required class="form-control jw-element-form-input-text" value="">
         </div>
     </div>
 
     <div class="jw-element-form-group">
-        <label for="jwForm7EZR8D_dynamic-form-5942243-20200640" class="jw-element-form-label">Email address *</label>
+        <label for="cs_email" class="jw-element-form-label">Email address *</label>
         <div class="jw-element-form-content">
-            <input
-                type="email"
-                name="email"
-                required
-                id="jwForm7EZR8D_dynamic-form-5942243-20200640"
-                class="form-control jw-element-form-input-text"
-                value=""
-            >
+            <input type="email" id="cs_email" name="email" required class="form-control jw-element-form-input-text" value="">
         </div>
     </div>
 
     <div class="jw-element-form-group">
-        <label for="jwFormuFcPBp_dynamic-form-5942243-20200641" class="jw-element-form-label">Message *</label>
+        <label for="cs_message" class="jw-element-form-label">Message *</label>
         <div class="jw-element-form-content">
-            <textarea
-                name="message"
-                required
-                id="jwFormuFcPBp_dynamic-form-5942243-20200641"
-                class="form-control jw-element-form-input-text"
-            ></textarea>
+            <textarea id="cs_message" name="message" required class="form-control jw-element-form-input-text"></textarea>
         </div>
     </div>
 
     <div class="jw-element-form-group">
         <div class="jw-element-form-content">
-            <button
-                type="submit"
-                class="jw-btn jw-btn--size-medium"
-                name="submit"
-            >
+            <button type="button" id="cs_submit" class="jw-btn jw-btn--size-medium">
                 <span class="jw-btn-caption">Submit form</span>
             </button>
         </div>
     </div>
-</form>
+</div>
 <script>
 (function () {
-  var form = document.getElementById('creativeStyleContactForm');
-  if (!form) return;
-  form.addEventListener('submit', function (event) {
-    event.preventDefault();
-    var button = form.querySelector('button[type="submit"], input[type="submit"]');
-    var original = button ? button.value || button.textContent : '';
-    if (button) { if ('value' in button) button.value = 'Sending...'; else button.textContent = 'Sending...'; button.disabled = true; }
-    fetch(form.action, {
+  var box = document.getElementById('creativeStyleContactForm');
+  var button = document.getElementById('cs_submit');
+  if (!box || !button) return;
+
+  button.addEventListener('click', function () {
+    var name = document.getElementById('cs_name');
+    var email = document.getElementById('cs_email');
+    var message = document.getElementById('cs_message');
+    var honey = document.getElementById('cs_honey');
+
+    if (!name.value.trim() || !email.checkValidity() || !message.value.trim()) {
+      if (!name.value.trim()) name.focus();
+      else if (!email.checkValidity()) email.focus();
+      else message.focus();
+      return;
+    }
+
+    if (honey.value) return;
+
+    var original = button.textContent;
+    button.disabled = true;
+    button.textContent = 'Sending...';
+
+    var data = new FormData();
+    data.append('name', name.value.trim());
+    data.append('email', email.value.trim());
+    data.append('message', message.value.trim());
+    data.append('_subject', document.getElementById('cs_subject').value);
+    data.append('_captcha', 'false');
+    data.append('_template', 'table');
+    data.append('_honey', '');
+
+    fetch('https://formsubmit.co/ajax/info@creativestyleuae.com', {
       method: 'POST',
       headers: { 'Accept': 'application/json' },
-      body: new FormData(form)
+      body: data
     })
     .then(function (response) {
-      if (!response.ok) throw new Error('Submission failed');
-      return response.json();
+      return response.json().then(function (result) {
+        if (!response.ok || result.success !== true) {
+          throw new Error(result.message || 'Submission failed');
+        }
+        return result;
+      });
     })
-    .then(function (data) {
-      if (!data.success) throw new Error(data.message || 'Submission failed');
-      form.reset();
+    .then(function () {
+      name.value = '';
+      email.value = '';
+      message.value = '';
       alert('Thank you. Your message has been sent successfully.');
     })
-    .catch(function () {
+    .catch(function (error) {
+      console.error('Contact form error:', error);
       alert('Sorry, your message could not be sent. Please email info@creativestyleuae.com directly.');
     })
     .finally(function () {
-      if (button) { button.disabled = false; if ('value' in button) button.value = original; else button.textContent = original; }
+      button.disabled = false;
+      button.textContent = original;
     });
   });
 })();
