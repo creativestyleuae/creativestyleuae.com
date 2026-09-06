@@ -914,15 +914,19 @@
     <div
     id="jw-element-772854904"
     data-jw-element-id="772854904"
-        class="jw-tree-node jw-element jw-contact-form jw-node-is-first-child jw-node-is-last-child"
+        class="jw-tree-node jw-element creative-contact-form jw-node-is-first-child jw-node-is-last-child"
 >
-   <form id="creativeStyleContactForm" action="https://formsubmit.co/ajax/info@creativestyleuae.com" method="POST" accept-charset="UTF-8">
-  
-    <input type="hidden" name="_subject" value="New Contact Form Message - Creative Style Garment Printing & Embroidery">
+   <form id="creativeStyleContactForm"
+      action="https://formsubmit.co/ajax/info@creativestyleuae.com"
+      method="POST"
+      accept-charset="UTF-8">
+
+    <input type="hidden" name="_subject" value="New Contact Form Message - Creative Style Garment">
     <input type="hidden" name="_template" value="table">
     <input type="hidden" name="_captcha" value="false">
     <input type="hidden" name="_url" value="https://www.creativestyleuae.com/index.html">
-    <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+    <input type="text" name="_honey" value="" style="display:none !important;" tabindex="-1" autocomplete="off">
+
     <div class="jw-element-form-group">
         <label for="jwForm8yE8oN_dynamic-form-5942243-20200639" class="jw-element-form-label">Name *</label>
         <div class="jw-element-form-content">
@@ -975,39 +979,6 @@
         </div>
     </div>
 </form>
-<script>
-(function () {
-  var form = document.getElementById('creativeStyleContactForm');
-  if (!form) return;
-  form.addEventListener('submit', function (event) {
-    event.preventDefault();
-    var button = form.querySelector('button[type="submit"], input[type="submit"]');
-    var original = button ? button.value || button.textContent : '';
-    if (button) { if ('value' in button) button.value = 'Sending...'; else button.textContent = 'Sending...'; button.disabled = true; }
-    fetch(form.action, {
-      method: 'POST',
-      headers: { 'Accept': 'application/json' },
-      body: (function () { var fd = new FormData(form); fd.set('_replyto', form.querySelector('input[name=\"email\"]').value); return fd; })()
-    })
-    .then(function (response) {
-      if (!response.ok) throw new Error('Submission failed (' + response.status + ')');
-      return response.json();
-    })
-    .then(function (data) {
-      if (!data.success) throw new Error(data.message || 'Submission failed');
-      form.reset();
-      alert('Thank you. Your message has been sent successfully.');
-    })
-    .catch(function (error) {
-      console.error('Contact form error:', error);
-      alert('Sorry, your message could not be sent. ' + (error && error.message ? error.message : 'Please email info@creativestyleuae.com directly.'));
-    })
-    .finally(function () {
-      if (button) { button.disabled = false; if ('value' in button) button.value = original; else button.textContent = original; }
-    });
-  });
-})();
-</script>
 </div></div><div
     id="jw-element-772854905"
     data-jw-element-id="772854905"
@@ -1218,6 +1189,74 @@
 </style>
 
     
-    </body>
+    
+<script>
+(function () {
+    function initCreativeStyleContactForm() {
+        var form = document.getElementById('creativeStyleContactForm');
+        if (!form || form.dataset.formsubmitBound === '1') return;
+        form.dataset.formsubmitBound = '1';
+
+        // Capture the submit event before Webador's own form handler can process it.
+        document.addEventListener('submit', function (event) {
+            if (event.target !== form) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+
+            var button = form.querySelector('button[type="submit"]');
+            var caption = button ? button.querySelector('.jw-btn-caption') : null;
+            var originalText = caption ? caption.textContent : 'Submit form';
+
+            if (button) button.disabled = true;
+            if (caption) caption.textContent = 'Sending...';
+
+            var data = new FormData(form);
+            var email = form.querySelector('input[name="email"]');
+            if (email) data.set('_replyto', email.value);
+
+            fetch(form.action, {
+                method: 'POST',
+                body: data,
+                headers: {
+                    'Accept': 'application/json'
+                },
+                credentials: 'omit'
+            })
+            .then(function (response) {
+                return response.text().then(function (text) {
+                    var payload = {};
+                    try { payload = text ? JSON.parse(text) : {}; } catch (e) {}
+                    if (!response.ok || payload.success === false || payload.success === 'false') {
+                        throw new Error(payload.message || ('HTTP ' + response.status));
+                    }
+                    return payload;
+                });
+            })
+            .then(function () {
+                form.reset();
+                alert('Thank you! Your message has been sent successfully.');
+            })
+            .catch(function (error) {
+                console.error('Contact form error:', error);
+                alert('Sorry, your message could not be sent. Please email info@creativestyleuae.com directly.');
+            })
+            .finally(function () {
+                if (button) button.disabled = false;
+                if (caption) caption.textContent = originalText;
+            });
+        }, true);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initCreativeStyleContactForm);
+    } else {
+        initCreativeStyleContactForm();
+    }
+})();
+</script>
+
+</body>
 
 </html>
